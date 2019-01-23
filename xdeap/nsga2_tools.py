@@ -22,7 +22,7 @@ from deap import benchmarks
 from deap.benchmarks.tools import diversity, convergence
 from deap import creator
 from deap import tools
-from deap_addons import fitness_with_constraints
+from xdeap import fitness_with_constraints
 
 
 def uniform(low, up, size=None):

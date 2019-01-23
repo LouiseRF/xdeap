@@ -33,7 +33,7 @@ from deap import benchmarks
 from deap.benchmarks.tools import diversity, convergence
 from deap import creator
 from deap import base, tools
-from deap_addons import fitness_with_constraints # Chris' custom routines
+from xdeap import fitness_with_constraints # Chris' custom routines
 
 creator.create("FitnessMin", fitness_with_constraints.FitnessWithConstraints, weights=(-1.0, -1.0, 1.0, 1.0))
 creator.create("Individual", array.array, typecode='d', fitness=creator.FitnessMin)
