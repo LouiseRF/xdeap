@@ -158,7 +158,7 @@ setup(
     # MANIFEST.in as well.
 #    package_data={  # Optional
 #        'sample': ['package_data.dat'],
-    },
+#    },
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
