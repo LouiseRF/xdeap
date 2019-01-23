@@ -1,1 +1,0 @@
-python3 -m scoop -n 3 nsga2_constrained.py
