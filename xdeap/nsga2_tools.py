@@ -7,14 +7,16 @@ import array
 import random
 import time
 
+
+
 import pickle # for checkpointing. Json doesn't work on the array object
 
 import os
 import sys
 
-import numpy
+import numpy as np
 
-from scoop import logger
+#from scoop import ### logger
 
 from deap import algorithms
 from deap import base
@@ -165,8 +167,13 @@ def nsga2_toolbox(N_DIM=1, WEIGHTS = (1), N_CONSTRAINTS = 0, BOUND_LOW = [0.0], 
     '''
     creator.create('MyFitness', fitness_with_constraints.FitnessWithConstraints, weights=WEIGHTS, n_constraints = N_CONSTRAINTS)
     creator.create('Individual', array.array, typecode='d', fitness=creator.MyFitness, variable_labels=VARIABLE_LABELS, objective_labels=OBJECTIVE_LABELS)
+    # Don't use Numpy version. See advanced tutorial for why. 
+    #creator.create('Individual', np.ndarray,  fitness=creator.MyFitness, variable_labels=VARIABLE_LABELS, objective_labels=OBJECTIVE_LABELS)
+
 
     toolbox = base.Toolbox()
+    
+    
     
     toolbox.register('attr_float', uniform, BOUND_LOW, BOUND_UP, N_DIM)
     toolbox.register('individual', tools.initIterate, creator.Individual, toolbox.attr_float)
@@ -232,10 +239,10 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
 
     # Init statistics 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register('avg', numpy.mean, axis=0)
-    stats.register('std', numpy.std, axis=0)
-    stats.register('min', numpy.min, axis=0)
-    stats.register('max', numpy.max, axis=0)
+    stats.register('avg', np.mean, axis=0)
+    stats.register('std', np.std, axis=0)
+    stats.register('min', np.min, axis=0)
+    stats.register('max', np.max, axis=0)
 
     
     #  LOAD CHECKPOINT
@@ -247,7 +254,7 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         #halloffame = cp['halloffame']
         logbook = cp['logbook']
         random.setstate(cp['rndstate'])
-        logger.info('Loaded checkpoint: '+checkpoint)
+        ### logger.info('Loaded checkpoint: '+checkpoint)
     else:
         # Start a new evolution
         population = toolbox.population(n=MU)
@@ -259,8 +266,8 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in population] #Reevaluate all if not ind.fitness.valid]
         
-    logger.info('_________________________________')
-    logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...')
+    ### logger.info('_________________________________')
+    ### logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...')
     evaluate_result = toolbox.map(toolbox.evaluate, invalid_ind)
     for ind, fit in zip(invalid_ind, evaluate_result):
         ind.fitness.values = fit[0]
@@ -269,7 +276,7 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         # Allow for additional info to be saved (for example, a dictionary of properties)
         if len(fit) > 2:
             ind.fitness.info = fit[2]
-    logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...DONE')
+    ### logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...DONE')
     write_txt_population(population, os.path.join(output_dir, 'initial_pop.txt') ) 
     
       
@@ -310,7 +317,7 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
                
                
-        logger.info(str(len(invalid_ind))+' fitness calculations for generation '+str(gen)+' ...')
+        ### logger.info(str(len(invalid_ind))+' fitness calculations for generation '+str(gen)+' ...')
         tstart = time.time()
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
@@ -321,9 +328,9 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
             if len(fit) > 2:
               ind.fitness.info = fit[2]
         tend = time.time()
-        logger.info(str(len(invalid_ind))+' fitness calculations for generation '+str(gen)+' DONE, time = '+str(tend-tstart)+' s')
+        ### logger.info(str(len(invalid_ind))+' fitness calculations for generation '+str(gen)+' DONE, time = '+str(tend-tstart)+' s')
         
-        logger.info('Population selection for generation '+str(gen)+' ...')
+        ### logger.info('Population selection for generation '+str(gen)+' ...')
         # Select the next generation population
         population = toolbox.select(population + offspring, MU)
         
@@ -333,7 +340,7 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         record = stats.compile(population)
         logbook.record(gen=gen, evals=len(invalid_ind), **record)
         print(logbook.stream)
-        logger.info('Population selection for generation '+str(gen)+' DONE')
+        ### logger.info('Population selection for generation '+str(gen)+' DONE')
 
         gen_name = 'pop_'+str(gen)
         write_txt_population(population, os.path.join(output_dir, gen_name+'.txt') ) 
@@ -345,8 +352,8 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         if gen % CHECKPOINT_FREQUENCY == 0:
             filename = gen_name+'.pkl'
             write_checkpoint(os.path.join(output_dir, filename), population=population, generation=gen, logbook=logbook)
-            logger.info('_________________________________')
-            logger.info('Checkpoint '+filename+' written')
+            ### logger.info('_________________________________')
+            ### logger.info('Checkpoint '+filename+' written')
             
     return population, logbook
         
