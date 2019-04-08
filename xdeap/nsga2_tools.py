@@ -305,8 +305,8 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
             if random.random() <= CXPB:
-                print(ind1)
-                print(ind2)
+                #print(ind1)
+                #print(ind2)
                 toolbox.mate(ind1, ind2)
             
             toolbox.mutate(ind1)
