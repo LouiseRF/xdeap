@@ -215,7 +215,8 @@ def params_from_config(nsga2_config):
 
 def main(toolbox, output_dir = '', checkpoint=None, seed=None,
          max_generations = 2, population_size = 4, checkpoint_frequency = 1,
-         crossover_probability = 0.9, do_history=False, abort_file=''):
+         crossover_probability = 0.9, do_history=False, abort_file='', 
+         skip_checkpoint_eval=False):
     '''
     Main loop for a NSGA-II optimization
     
@@ -268,25 +269,26 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         
     ### logger.info('_________________________________')
     ### logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...')
-    evaluate_result = toolbox.map(toolbox.evaluate, invalid_ind)
-    for ind, fit in zip(invalid_ind, evaluate_result):
-        ind.fitness.values = fit[0]
-        ind.fitness.cvalues = fit[1]
-        ind.fitness.n_constraints = len(ind.fitness.cvalues)
-        # Allow for additional info to be saved (for example, a dictionary of properties)
-        if len(fit) > 2:
-            ind.fitness.info = fit[2]
+    if not skip_checkpoint_eval:
+        evaluate_result = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, evaluate_result):
+            ind.fitness.values = fit[0]
+         ind.fitness.cvalues = fit[1]
+            ind.fitness.n_constraints = len(ind.fitness.cvalues)
+            # Allow for additional info to be saved (for example, a dictionary of properties)
+            if len(fit) > 2:
+                ind.fitness.info = fit[2]
     ### logger.info(str(len(invalid_ind))+' fitness calculations for initial generation...DONE')
-    write_txt_population(population, os.path.join(output_dir, 'initial_pop.txt') ) 
+        write_txt_population(population, os.path.join(output_dir, 'initial_pop.txt') ) 
     
       
         # This is just to assign the crowding distance to the individuals
         # no actual selection is done
-    population = toolbox.select(population, len(population))
+        population = toolbox.select(population, len(population))
        
-    record = stats.compile(population)
-    logbook.record(gen=start_gen, evals=len(invalid_ind), **record)
-    print(logbook.stream)   
+        record = stats.compile(population)
+        logbook.record(gen=start_gen, evals=len(invalid_ind), **record)
+        print(logbook.stream)   
 
     # Initial history update. Subsequent updates will be made when mating and mutating
     if do_history:
