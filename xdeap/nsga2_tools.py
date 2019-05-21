@@ -273,7 +273,7 @@ def main(toolbox, output_dir = '', checkpoint=None, seed=None,
         evaluate_result = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, evaluate_result):
             ind.fitness.values = fit[0]
-         ind.fitness.cvalues = fit[1]
+            ind.fitness.cvalues = fit[1]
             ind.fitness.n_constraints = len(ind.fitness.cvalues)
             # Allow for additional info to be saved (for example, a dictionary of properties)
             if len(fit) > 2:
