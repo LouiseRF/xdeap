@@ -96,10 +96,19 @@ class FitnessWithConstraints(object):
         if self.n_constraints == 0:
             return True
         """A feasible solution must have all constraints >= 0"""
-        if any([x < 0 for x in self.cvalues]):
-          return False
+        if any([x < 0 or x > 1 for x in self.cvalues]):
+            return False
         else:
-          return True
+            return True
+    
+    # def feasible(self):
+    #     if self.n_constraints == 0:
+    #         return True
+    #     """A feasible solution must have all constraints >= 0"""
+    #     if any([x < 0 for x in self.cvalues]):
+    #       return False
+    #     else:
+    #       return True
 
     def dominates(self, other, obj=slice(None)):
         """A feasible solution must have all constraints >= 0"""
@@ -115,15 +124,30 @@ class FitnessWithConstraints(object):
             return False
         else:
             # Both infeasible
-            is_better = False
-            for self_cvalue, other_cvalue in zip(self.cvalues, other.cvalues):
-                if (self_cvalue >= 0 and other_cvalue >= 0):
-                    continue
-                if (self_cvalue < other_cvalue):
-                    return False
-                elif (self_cvalue > other_cvalue):
+            #if there are more constraints met in self.cvalues than other.cvalues self.cvalues dominates
+            if len(list(x for x in self.cvalues if 0<=x<=1)) > len(list(x for x in other.cvalues if 0<=x<=1)):
+                print("true, meets more constraints")
+                return True   
+            #if same number of constraints are met and the sum of all the constraint violations is smaller for self.cvalues than other.cvalues self.cvalues dominates
+            elif len(list(x for x in self.cvalues if 0<=x<=1)) == len(list(x for x in other.cvalues if 0<=x<=1)):
+                if sum(abs(num) for num in self.cvalues) < sum(abs(num) for num in other.cvalues):
+                    print("true cos constraints are not as bad")
                     return True
-            return is_better
+                else:
+                    print("false because they are equally bad or 1 has worse constraint breaking")
+                    return False
+            else:
+                print("false by default")
+                return False       
+            # is_better = False
+            # for self_cvalue, other_cvalue in zip(self.cvalues, other.cvalues):
+                # if (self_cvalue >= 0 and other_cvalue >= 0):
+                    # continue
+                # if (self_cvalue < other_cvalue):
+                    # return False
+                # elif (self_cvalue > other_cvalue):
+                    # return True
+            # return is_better
            
     
     def old_dominates(self, other, obj=slice(None)):
